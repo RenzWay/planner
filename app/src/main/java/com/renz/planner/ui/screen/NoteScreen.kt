@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteScreen(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
+fun NoteScreen(viewModel: NotesViewModel, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     val tabs = listOf("All", "Favorite")
 
     val pagerState = rememberPagerState(pageCount = { tabs.size })
@@ -66,7 +66,7 @@ fun NoteScreen(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
-        topBar = { NoteAppBar() },
+        topBar = { NoteAppBar(onBackClick = onBackClick) },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 noteToEdit = null

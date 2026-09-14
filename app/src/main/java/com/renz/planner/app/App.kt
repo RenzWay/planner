@@ -28,7 +28,7 @@ fun App(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
 
         // Layar 2: Notes
         composable(Screen.Note.route) {
-            NoteScreen(viewModel = viewModel)
+            NoteScreen(viewModel = viewModel, onBackClick = { navController.popBackStack() })
         }
 
         // Layar 3: Calendar (Placeholder sementara)
