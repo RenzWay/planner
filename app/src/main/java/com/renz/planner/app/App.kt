@@ -8,10 +8,15 @@ import androidx.navigation.compose.rememberNavController
 import com.renz.planner.navigation.Screen
 import com.renz.planner.ui.screen.HomeScreen
 import com.renz.planner.ui.screen.NoteScreen
+import com.renz.planner.ui.viewmodel.CalendarViewModel
 import com.renz.planner.ui.viewmodel.NotesViewModel
 
 @Composable
-fun App(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
+fun App(
+    notesViewModel: NotesViewModel,
+    calendarViewModel: CalendarViewModel,
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -28,7 +33,7 @@ fun App(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
 
         // Layar 2: Notes
         composable(Screen.Note.route) {
-            NoteScreen(viewModel = viewModel, onBackClick = { navController.popBackStack() })
+            NoteScreen(viewModel = notesViewModel, onBackClick = { navController.popBackStack() })
         }
 
         // Layar 3: Calendar (Placeholder sementara)
