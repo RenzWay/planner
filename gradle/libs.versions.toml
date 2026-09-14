@@ -16,6 +16,7 @@ roomCompiler = "2.8.5"
 roomCompilerVersion = "2.8.5"
 roomRuntime = "2.8.5"
 runtimeLivedata = "1.11.2"
+graphicsShapes = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose"
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "graphicsShapes" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

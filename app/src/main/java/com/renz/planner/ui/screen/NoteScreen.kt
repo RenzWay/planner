@@ -1,12 +1,15 @@
 package com.renz.planner.ui.screen
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.renz.planner.data.notes.Notes
@@ -41,6 +45,7 @@ fun NoteScreen(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
 
     val allNotes by viewModel.notesList.collectAsStateWithLifecycle()
     val favoriteNotes by viewModel.favoriteNotesList.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var noteToEdit by remember { mutableStateOf<Notes?>(null) }
@@ -71,32 +76,48 @@ fun NoteScreen(viewModel: NotesViewModel, modifier: Modifier = Modifier) {
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            TabRow(selectedTabIndex = pagerState.currentPage) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(selected = pagerState.currentPage == index, onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    }, text = { Text(text = title) })
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TabRow(selectedTabIndex = pagerState.currentPage) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            text = { Text(text = title) }
+                        )
+                    }
+                }
+
+                HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
+                    when (page) {
+                        0 -> AllNotesContent(
+                            notes = allNotes,
+                            onFavoriteToggle = onFavoriteToggle,
+                            onDeleteNote = onDeleteNote,
+                            onNoteClick = openEditorForEdit
+                        )
+
+                        1 -> FavoriteNotesContent(
+                            notes = favoriteNotes,
+                            onFavoriteToggle = onFavoriteToggle,
+                            onDeleteNote = onDeleteNote,
+                            onNoteClick = openEditorForEdit
+                        )
+                    }
                 }
             }
 
-            HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
-                when (page) {
-                    0 -> AllNotesContent(
-                        notes = allNotes,
-                        onFavoriteToggle = onFavoriteToggle,
-                        onDeleteNote = onDeleteNote,
-                        onNoteClick = openEditorForEdit // 👈 Pasang di sini
-                    )
-
-                    1 -> FavoriteNotesContent(
-                        notes = favoriteNotes,
-                        onFavoriteToggle = onFavoriteToggle,
-                        onDeleteNote = onDeleteNote,
-                        onNoteClick = openEditorForEdit // 👈 Pasang di sini
-                    )
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
             }
 

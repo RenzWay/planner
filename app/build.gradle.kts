@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.graphics.shapes)
     implementation(libs.richeditor.compose)
     implementation(libs.androidx.compose.material.icons.extended)
 

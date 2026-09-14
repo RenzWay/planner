@@ -46,6 +46,7 @@ fun NoteEditorContent(
 
     LaunchedEffect(noteToEdit) {
         noteToEdit?.let {
+            title = it.title
             richTextState.setHtml(it.content)
         }
     }
