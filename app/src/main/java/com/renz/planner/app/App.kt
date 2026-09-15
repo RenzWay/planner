@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.renz.planner.navigation.Screen
+import com.renz.planner.ui.screen.CalendarScreen
 import com.renz.planner.ui.screen.HomeScreen
 import com.renz.planner.ui.screen.NoteScreen
 import com.renz.planner.ui.viewmodel.CalendarViewModel
@@ -38,7 +39,9 @@ fun App(
 
         // Layar 3: Calendar (Placeholder sementara)
         composable(Screen.Calendar.route) {
-            // Tempat layar kalender nanti
+            CalendarScreen(
+                viewModel = calendarViewModel,
+                onBackClick = { navController.popBackStack() })
         }
     }
 }

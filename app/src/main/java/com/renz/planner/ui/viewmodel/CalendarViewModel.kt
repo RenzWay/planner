@@ -45,11 +45,17 @@ class CalendarViewModel(private val repository: CalendarRepository) : ViewModel(
     }
 
     fun nextMonth() {
-        _currentYearMonth.value = _currentYearMonth.value.plusMonths(1)
+        val newMonth = _currentYearMonth.value.plusMonths(1)
+        _currentYearMonth.value = newMonth
+        // Sync selectedDate ke tanggal 1 bulan baru
+        _selectedDate.value = newMonth.atDay(1)
     }
 
     fun previousMonth() {
-        _currentYearMonth.value = _currentYearMonth.value.minusMonths(1)
+        val newMonth = _currentYearMonth.value.minusMonths(1)
+        _currentYearMonth.value = newMonth
+        // Sync selectedDate ke tanggal 1 bulan baru
+        _selectedDate.value = newMonth.atDay(1)
     }
 
     fun insertEvent(event: CalendarEvent) {
