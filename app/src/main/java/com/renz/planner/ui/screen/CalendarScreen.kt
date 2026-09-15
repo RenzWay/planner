@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.renz.planner.data.calendar.CalendarEvent
 import com.renz.planner.data.calendar.CalendarViewMode
 import com.renz.planner.ui.components.CalendarSpeedDialFab
 import com.renz.planner.ui.components.CalendarTopBar
@@ -46,6 +47,7 @@ fun CalendarScreen(
     val eventsForSelectedDate by viewModel.eventForSelectedDate.collectAsStateWithLifecycle()
     val allEvents by viewModel.allEvents.collectAsStateWithLifecycle()
     var viewMode by remember { mutableStateOf(CalendarViewMode.MONTH) }
+    var selectedEventForEdit by remember { mutableStateOf<CalendarEvent?>(null) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -82,7 +84,10 @@ fun CalendarScreen(
         },
         floatingActionButton = {
             CalendarSpeedDialFab(
-                onAddEventClick = { showBottomSheet = true }
+                onAddEventClick = {
+                    selectedEventForEdit = null
+                    showBottomSheet = true
+                }
             )
         }
     ) { innerPadding ->
@@ -118,7 +123,14 @@ fun CalendarScreen(
                     CalendarViewMode.DAILY -> {
                         DailyTimelineContent(
                             selectedDate = selectedDate,
-                            events = eventsForSelectedDate
+                            events = eventsForSelectedDate,
+                            onEventClick = { event ->
+                                selectedEventForEdit = event
+                                showBottomSheet = true
+                            },
+                            onDeleteEvent = { event ->
+                                viewModel.deleteEvent(event)
+                            }
                         )
                     }
                 }
@@ -127,21 +139,35 @@ fun CalendarScreen(
 
         if (showBottomSheet) {
             ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
+                onDismissRequest = {
+                    showBottomSheet = false
+                    selectedEventForEdit = null
+                },
                 sheetState = sheetState,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 EventEditorSheet(
                     selectedDate = selectedDate,
+                    eventToEdit = selectedEventForEdit,
                     onSaveClick = { event ->
-                        viewModel.insertEvent(event)
+                        if (selectedEventForEdit == null) {
+                            viewModel.insertEvent(event)
+                        } else {
+                            viewModel.updateEvent(event)
+                        }
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) showBottomSheet = false
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                                selectedEventForEdit = null
+                            }
                         }
                     },
                     onDismiss = {
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) showBottomSheet = false
+                            if (!sheetState.isVisible) {
+                                showBottomSheet = false
+                                selectedEventForEdit = null
+                            }
                         }
                     }
                 )

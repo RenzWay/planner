@@ -1,21 +1,26 @@
 package com.renz.planner.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +37,9 @@ import java.util.Locale
 @Composable
 fun DailyTimelineContent(
     selectedDate: LocalDate,
-    events: List<CalendarEvent>
+    events: List<CalendarEvent>,
+    onEventClick: (CalendarEvent) -> Unit,
+    onDeleteEvent: (CalendarEvent) -> Unit
 ) {
     val hours = (0..23).toList()
 
@@ -72,7 +79,7 @@ fun DailyTimelineContent(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .heightIn(64.dp),
                     verticalAlignment = Alignment.Top
                 ) {
                     // Label Jam di Kiri (8 AM, 9 AM, dst)
@@ -84,37 +91,55 @@ fun DailyTimelineContent(
                     )
 
                     // Line Pembatas Horizontal
-                    Box(
+                    Column(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight()
+                            .padding(vertical = 4.dp)
                     ) {
+                        // Garis pembatas horizontal di setiap jam
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
                                 .background(MaterialTheme.colorScheme.outlineVariant)
-                                .align(Alignment.TopStart)
                         )
 
-                        // Blok Kartu Event Melayang Ala Slothui
+                        // Blok Kartu Event
                         matchingEvents.forEach { event ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 2.dp, bottom = 4.dp),
+                                    .padding(vertical = 2.dp)
+                                    .clickable { onEventClick(event) },
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color(event.colorHex)
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Column(modifier = Modifier.padding(8.dp)) {
-                                    Text(
-                                        text = "${event.title} (${event.startTime} - ${event.endTime})",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
+                                Row(
+                                    modifier = Modifier.padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = event.title,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = "${event.startTime} - ${event.endTime}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                    }
+                                    IconButton(onClick = { onDeleteEvent(event) }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Hapus Event",
+                                            tint = Color.White
+                                        )
+                                    }
                                 }
                             }
                         }

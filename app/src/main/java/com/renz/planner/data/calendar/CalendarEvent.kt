@@ -15,5 +15,6 @@ data class CalendarEvent(
     val startTime: String,
     val endTime: String,
     val colorHex: Long,
-    val isCompleted: Boolean = false
+    val isCompleted: Boolean = false,
+    val reminderMinutesBefore: Int = 15
 ) : Parcelable
