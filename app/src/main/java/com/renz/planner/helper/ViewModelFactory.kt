@@ -12,8 +12,8 @@ class ViewModelFactory(
     private val calendarRepository: CalendarRepository
 ) : ViewModelProvider.Factory {
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        @Suppress("UNCHECKED_CAST")
         return when {
             modelClass.isAssignableFrom(NotesViewModel::class.java) -> {
                 NotesViewModel(notesRepository) as T

@@ -17,7 +17,7 @@ android {
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +39,7 @@ android {
     compileOptions {
         targetCompatibility = JavaVersion.VERSION_11
         sourceCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -47,6 +48,8 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     implementation(libs.androidx.graphics.shapes)
     implementation(libs.richeditor.compose)
     implementation(libs.androidx.compose.material.icons.extended)

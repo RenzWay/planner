@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.renz.planner.data.calendar.CalendarEvent
 import com.renz.planner.repository.CalendarRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ class CalendarViewModel(private val repository: CalendarRepository) : ViewModel(
             initialValue = emptyList()
         )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val eventForSelectedDate: StateFlow<List<CalendarEvent>> = _selectedDate
         .flatMapLatest { date ->
             repository.getEventByDate(date.toString())
