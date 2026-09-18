@@ -48,6 +48,13 @@ class CalendarViewModel(
         _selectedDate.value = date
     }
 
+    fun onMonthChanged(newMonth: YearMonth) {
+        if (_currentYearMonth.value != newMonth) {
+            _currentYearMonth.value = newMonth
+            _selectedDate.value = newMonth.atDay(1)
+        }
+    }
+
     fun nextMonth() {
         val newMonth = _currentYearMonth.value.plusMonths(1)
         _currentYearMonth.value = newMonth

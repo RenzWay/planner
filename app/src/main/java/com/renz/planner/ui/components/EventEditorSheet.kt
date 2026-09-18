@@ -41,6 +41,7 @@ import com.renz.planner.data.calendar.CalendarEvent
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,6 +106,18 @@ fun EventEditorSheet(
             text = if (eventToEdit == null) "Tambah Event Baru" else "Edit Event",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Tanggal: ${
+                selectedDate.format(
+                    DateTimeFormatter.ofPattern(
+                        "EEEE, dd MMMM yyyy",
+                        Locale("id,", "ID")
+                    )
+                )
+            }", style = MaterialTheme.typography.bodySmall
         )
 
         Spacer(modifier = Modifier.height(16.dp))

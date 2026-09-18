@@ -116,6 +116,9 @@ fun CalendarScreen(
                             onDateSelected = { date ->
                                 viewModel.onDateSelected(date)
                                 viewMode = CalendarViewMode.DAILY
+                            },
+                            onMonthChanged = { newMonth ->
+                                viewModel.onMonthChanged(newMonth)
                             }
                         )
                     }
