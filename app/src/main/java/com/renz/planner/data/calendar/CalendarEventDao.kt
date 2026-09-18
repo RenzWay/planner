@@ -16,6 +16,9 @@ interface CalendarEventDao {
     @Query("SELECT * FROM events WHERE date = :dateString ORDER BY startTime ASC")
     fun getEventByDate(dateString: String): Flow<List<CalendarEvent>>
 
+    @Query("SELECT * FROM events")
+    suspend fun getAllEventsOnce(): List<CalendarEvent>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEvent(event: CalendarEvent)
 

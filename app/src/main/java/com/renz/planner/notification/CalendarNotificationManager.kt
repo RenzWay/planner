@@ -43,6 +43,7 @@ class CalendarNotificationManager(private val context: Context) {
     }
 
     fun scheduleEventAlarm(event: CalendarEvent) {
+        cancelEventAlarm(event)
         val intent = Intent(context, CalendarAlarmReceiver::class.java).apply {
             putExtra("EVENT_ID", event.id)
             putExtra("EVENT_TITLE", event.title)
@@ -66,6 +67,17 @@ class CalendarNotificationManager(private val context: Context) {
 
         if (triggerMillis <= System.currentTimeMillis()) return
 
+        var finalTriggerMillis = triggerMillis
+        if (finalTriggerMillis <= System.currentTimeMillis()) {
+            val eventTimeMillis =
+                eventLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            if (eventTimeMillis > System.currentTimeMillis()) {
+                finalTriggerMillis = System.currentTimeMillis() + 1000
+            } else {
+                return
+            }
+        }
+
         val showIntent = Intent(context, MainActivity::class.java)
         val showPendingIntent = PendingIntent.getActivity(
             context,
@@ -74,7 +86,7 @@ class CalendarNotificationManager(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerMillis, showPendingIntent)
+        val alarmClockInfo = AlarmManager.AlarmClockInfo(finalTriggerMillis, showPendingIntent)
         alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
 
     }

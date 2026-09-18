@@ -11,6 +11,10 @@ class CalendarRepository(private val eventDao: CalendarEventDao) {
         return eventDao.getEventByDate(dateString)
     }
 
+    suspend fun getAllEventsOnce(): List<CalendarEvent> {
+        return eventDao.getAllEventsOnce()
+    }
+
     suspend fun insertEvent(event: CalendarEvent) {
         eventDao.insertEvent(event)
     }

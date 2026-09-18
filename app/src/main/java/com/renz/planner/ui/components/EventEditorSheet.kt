@@ -26,6 +26,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +39,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.renz.planner.data.calendar.CalendarEvent
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,26 +51,40 @@ fun EventEditorSheet(
     onSaveClick: (CalendarEvent) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val now = remember { LocalTime.now() }
+    val formater = remember { DateTimeFormatter.ofPattern("HH:mm") }
+
     var title by remember { mutableStateOf(eventToEdit?.title ?: "") }
-    var startTime by remember { mutableStateOf(eventToEdit?.startTime ?: "09:00") }
-    var endTime by remember { mutableStateOf(eventToEdit?.endTime ?: "10:00") }
-    var reminderMinutes by remember { mutableStateOf(eventToEdit?.reminderMinutesBefore?.toString() ?: "15") }
+    var startTime by remember { mutableStateOf(eventToEdit?.startTime ?: now.format(formater)) }
+    var endTime by remember {
+        mutableStateOf(
+            eventToEdit?.endTime ?: now.plusMinutes(30).format(formater)
+        )
+    }
+    var reminderMinutes by remember {
+        mutableStateOf(
+            eventToEdit?.reminderMinutesBefore?.toString() ?: "15"
+        )
+    }
     var showTimePicker by remember { mutableStateOf(false) }
     var pickingStartTime by remember { mutableStateOf(true) }
 
-    val timePickerState = rememberTimePickerState(
-        initialHour = if (pickingStartTime) {
-            startTime.split(":")[0].toIntOrNull() ?: 9
-        } else {
-            endTime.split(":")[0].toIntOrNull() ?: 10
-        },
-        initialMinute = if (pickingStartTime) {
-            startTime.split(":")[1].toIntOrNull() ?: 0
-        } else {
-            endTime.split(":")[1].toIntOrNull() ?: 0
-        },
-        is24Hour = true
-    )
+
+    val timePickerState = key(pickingStartTime) {
+        rememberTimePickerState(
+            initialHour = if (pickingStartTime) {
+                startTime.split(":")[0].toIntOrNull() ?: 9
+            } else {
+                endTime.split(":")[0].toIntOrNull() ?: 10
+            },
+            initialMinute = if (pickingStartTime) {
+                startTime.split(":")[1].toIntOrNull() ?: 0
+            } else {
+                endTime.split(":")[1].toIntOrNull() ?: 0
+            },
+            is24Hour = true
+        )
+    }
 
 
     val colorOptions = listOf(
