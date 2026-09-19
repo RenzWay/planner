@@ -46,6 +46,7 @@ fun NoteScreen(viewModel: NotesViewModel, onBackClick: () -> Unit, modifier: Mod
     val allNotes by viewModel.notesList.collectAsStateWithLifecycle()
     val favoriteNotes by viewModel.favoriteNotesList.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var noteToEdit by remember { mutableStateOf<Notes?>(null) }
@@ -66,7 +67,13 @@ fun NoteScreen(viewModel: NotesViewModel, onBackClick: () -> Unit, modifier: Mod
 
     Scaffold(
         modifier = Modifier.fillMaxWidth(),
-        topBar = { NoteAppBar(onBackClick = onBackClick) },
+        topBar = {
+            NoteAppBar(
+                searchQuery = searchQuery,
+                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+                onBackClick = onBackClick
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 noteToEdit = null

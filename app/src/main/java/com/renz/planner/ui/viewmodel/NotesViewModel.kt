@@ -23,7 +23,7 @@ class NotesViewModel(private val repository: NotesRepository) : ViewModel() {
 
     val notesList: StateFlow<List<Notes>> = _searchQuery.flatMapLatest { query ->
         _isLoading.value = true
-        delay(2000.milliseconds)
+        delay(300.milliseconds)
 
         val flow = if (query.isBlank()) {
             repository.getAllNotes()
@@ -60,7 +60,6 @@ class NotesViewModel(private val repository: NotesRepository) : ViewModel() {
             repository.updateNote(note)
         }
     }
-
 
     fun deleteNote(note: Notes) {
         viewModelScope.launch {
