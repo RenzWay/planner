@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +32,7 @@ fun CalendarTopBar(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onToggleViewMode: () -> Unit,
+    onOpenAutostartInfo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -51,6 +53,12 @@ fun CalendarTopBar(
             }
         },
         actions = {
+            IconButton(onClick = onOpenAutostartInfo) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Izin Autostart & Baterai"
+                )
+            }
             IconButton(onClick = onPreviousMonth) {
                 Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Bulan Lalu")
             }

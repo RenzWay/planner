@@ -23,10 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.renz.planner.data.calendar.CalendarEvent
 import com.renz.planner.data.calendar.CalendarViewMode
+import com.renz.planner.helper.AutostartHelper
+import com.renz.planner.ui.components.AutostartDialog
 import com.renz.planner.ui.components.CalendarSpeedDialFab
 import com.renz.planner.ui.components.CalendarTopBar
 import com.renz.planner.ui.components.DailyTimelineContent
@@ -48,6 +51,11 @@ fun CalendarScreen(
     val allEvents by viewModel.allEvents.collectAsStateWithLifecycle()
     var viewMode by remember { mutableStateOf(CalendarViewMode.MONTH) }
     var selectedEventForEdit by remember { mutableStateOf<CalendarEvent?>(null) }
+
+    val context = LocalContext.current
+    var showAutostartDialog by remember {
+        mutableStateOf(AutostartHelper.shouldShowDialog(context))
+    }
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -79,7 +87,8 @@ fun CalendarScreen(
                     } else {
                         CalendarViewMode.MONTH
                     }
-                }
+                },
+                onOpenAutostartInfo = { showAutostartDialog = true }
             )
         },
         floatingActionButton = {
@@ -175,6 +184,20 @@ fun CalendarScreen(
                     }
                 )
             }
+        }
+
+        if (showAutostartDialog) {
+            AutostartDialog(
+                onOpenSettings = {
+                    AutostartHelper.openAutostartOrBatterySettings(context)
+                    AutostartHelper.setDontShowAgain(context, true)
+                    showAutostartDialog = false
+                },
+                onDismiss = {
+                    AutostartHelper.setDontShowAgain(context, true)
+                    showAutostartDialog = false
+                }
+            )
         }
     }
 

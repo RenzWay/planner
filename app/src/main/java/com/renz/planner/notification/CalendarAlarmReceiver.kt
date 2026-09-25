@@ -13,14 +13,19 @@ class CalendarAlarmReceiver : BroadcastReceiver() {
         val eventId = intent.getStringExtra("EVENT_ID") ?: return
         val title = intent.getStringExtra("EVENT_TITLE") ?: "Agenda Kalender"
         val time = intent.getStringExtra("EVENT_TIME") ?: ""
+        
+        CalendarNotificationManager(context)
 
         val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(
-            context, eventId.hashCode(), openIntent,
+            context,
+            eventId.hashCode(),
+            openIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         val builder = NotificationCompat.Builder(context, CalendarNotificationManager.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_popup_reminder)
             .setContentTitle(title)
