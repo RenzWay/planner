@@ -15,14 +15,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,8 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.renz.planner.data.calendar.CalendarEvent
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
@@ -55,6 +64,13 @@ fun EventEditorSheet(
     val now = remember { LocalTime.now() }
     val formater = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
+    var currentDate by remember {
+        mutableStateOf(
+            eventToEdit?.date?.let {
+                runCatching { LocalDate.parse(it) }.getOrNull()
+            } ?: selectedDate
+        )
+    }
     var title by remember { mutableStateOf(eventToEdit?.title ?: "") }
     var startTime by remember { mutableStateOf(eventToEdit?.startTime ?: now.format(formater)) }
     var endTime by remember {
@@ -67,9 +83,9 @@ fun EventEditorSheet(
             eventToEdit?.reminderMinutesBefore?.toString() ?: "15"
         )
     }
+    var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var pickingStartTime by remember { mutableStateOf(true) }
-
 
     val timePickerState = key(pickingStartTime) {
         rememberTimePickerState(
@@ -86,7 +102,6 @@ fun EventEditorSheet(
             is24Hour = true
         )
     }
-
 
     val colorOptions = listOf(
         0xFF3F51B5, // Royal Blue
@@ -107,20 +122,34 @@ fun EventEditorSheet(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "Tanggal: ${
-                selectedDate.format(
-                    DateTimeFormatter.ofPattern(
-                        "EEEE, dd MMMM yyyy",
-                        Locale("id,", "ID")
-                    )
+        // Tombol / Input Tanggal dengan Kalender Modal
+        OutlinedTextField(
+            value = currentDate.format(
+                DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy", Locale("id", "ID"))
+            ),
+            onValueChange = {},
+            label = { Text("Tanggal Acara") },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = "Pilih Tanggal"
                 )
-            }", style = MaterialTheme.typography.bodySmall
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true },
+            enabled = false,
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = title,
@@ -132,7 +161,7 @@ fun EventEditorSheet(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Input Jam Mulai & Selesai Simple
+        // Input Jam Mulai & Selesai
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -147,7 +176,7 @@ fun EventEditorSheet(
                         pickingStartTime = true
                         showTimePicker = true
                     },
-                enabled = false, // Biar gak bisa diketik manual
+                enabled = false,
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
                     disabledBorderColor = MaterialTheme.colorScheme.outline,
@@ -165,7 +194,7 @@ fun EventEditorSheet(
                         pickingStartTime = false
                         showTimePicker = true
                     },
-                enabled = false, // Biar gak bisa diketik manual
+                enabled = false,
                 colors = OutlinedTextFieldDefaults.colors(
                     disabledTextColor = MaterialTheme.colorScheme.onSurface,
                     disabledBorderColor = MaterialTheme.colorScheme.outline,
@@ -173,6 +202,17 @@ fun EventEditorSheet(
                 )
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = reminderMinutes,
+            onValueChange = { reminderMinutes = it.filter { char -> char.isDigit() } },
+            label = { Text("Pengingat (menit sebelum)") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -184,17 +224,7 @@ fun EventEditorSheet(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = reminderMinutes,
-            onValueChange = { reminderMinutes = it.filter { char -> char.isDigit() } },
-            label = { Text("Pengingat (menit sebelum)") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            singleLine = true
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Color Picker Bulat-bulat
+        // Color Picker
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             colorOptions.forEach { colorHex ->
                 val color = Color(colorHex)
@@ -233,7 +263,7 @@ fun EventEditorSheet(
                         val newEvent = CalendarEvent(
                             id = eventToEdit?.id ?: UUID.randomUUID().toString(),
                             title = title,
-                            date = selectedDate.toString(), // YYYY-MM-DD
+                            date = currentDate.toString(),
                             startTime = startTime,
                             endTime = endTime,
                             colorHex = selectedColor,
@@ -249,19 +279,77 @@ fun EventEditorSheet(
         }
     }
 
+    // Modal Kalender
+    if (showDatePicker) {
+        val initialMillis = remember(currentDate) {
+            currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli()
+        }
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = initialMillis
+        )
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val pickedDate = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.of("UTC"))
+                                .toLocalDate()
+                            currentDate = pickedDate
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // Modal Jam
     if (showTimePicker) {
         TimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    // Sekitar baris 178
-                    val formattedTime = String.format(
-                        java.util.Locale.getDefault(),
-                        "%02d:%02d",
-                        timePickerState.hour,
-                        timePickerState.minute
-                    )
-                    if (pickingStartTime) startTime = formattedTime else endTime = formattedTime
+                    val newTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+
+                    if (pickingStartTime) {
+                        // Hitung durasi jam lama (misal 30 menit atau 1 jam)
+                        val oldStart =
+                            runCatching {
+                                LocalTime.parse(startTime, formater)
+                            }.getOrNull()
+                        
+                        val oldEnd = runCatching {
+                            LocalTime.parse(endTime, formater)
+                        }.getOrNull()
+
+                        val durationMinutes =
+                            if (oldStart != null && oldEnd != null && oldEnd.isAfter(oldStart)) {
+                                java.time.Duration.between(oldStart, oldEnd).toMinutes()
+                            } else {
+                                30L
+                            }
+
+                        // Jam selesai baru mengikuti durasi tersebut
+                        val newEnd = newTime.plusMinutes(durationMinutes)
+
+                        startTime = newTime.format(formater)
+                        endTime = newEnd.format(formater)
+                    } else {
+                        endTime = newTime.format(formater)
+                    }
+
                     showTimePicker = false
                 }) { Text("OK") }
             },
@@ -270,19 +358,4 @@ fun EventEditorSheet(
             TimePicker(state = timePickerState)
         }
     }
-}
-
-@Composable
-fun TimePickerDialog(
-    title: @Composable () -> Unit,
-    onDismissRequest: () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismissRequest,
-        confirmButton = confirmButton,
-        title = title,
-        text = { content() }
-    )
 }
