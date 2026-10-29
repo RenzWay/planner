@@ -11,13 +11,17 @@ import com.renz.planner.MainActivity
 class CalendarAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val eventId = intent.getStringExtra("EVENT_ID") ?: return
+        val eventDate = intent.getStringExtra("EVENT_DATE") ?: ""
         val title = intent.getStringExtra("EVENT_TITLE") ?: "Agenda Kalender"
         val time = intent.getStringExtra("EVENT_TIME") ?: ""
-        
+        val isOverdue = intent.getBooleanExtra("IS_OVERDUE", false)
+
         CalendarNotificationManager(context)
 
         val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("NAVIGATE_TO", "calendar")
+            putExtra("SELECTED_DATE", eventDate)
         }
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -26,10 +30,13 @@ class CalendarAlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val displayTitle = if (isOverdue) "[Terlewat] $title" else title
+        val displayText = if (isOverdue) "Jadwal: $time (Sudah Terlewat)" else "Jadwal: $time"
+
         val builder = NotificationCompat.Builder(context, CalendarNotificationManager.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_popup_reminder)
-            .setContentTitle(title)
-            .setContentText("Jadwal: $time")
+            .setContentTitle(displayTitle)
+            .setContentText(displayText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)

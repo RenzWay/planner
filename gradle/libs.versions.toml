@@ -13,6 +13,7 @@ lifecycleLivedataKtx = "2.10.0"
 lifecycleViewmodelKtx = "2.10.0"
 navigationCompose = "2.10.1"
 richeditorCompose = "1.2.0"
+richeditorComposeCoil3 = "1.2.1"
 roomCompiler = "2.8.5"
 roomCompilerVersion = "2.8.5"
 roomRuntime = "2.8.5"
@@ -41,6 +42,7 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditorCompose" }
+richeditor-compose-coil3 = { module = "com.mohamedrejeb.richeditor:richeditor-compose-coil3", version.ref = "richeditorComposeCoil3" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }

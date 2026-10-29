@@ -16,8 +16,8 @@ android {
         applicationId = "com.renz.planner"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "2.4.0"
+        versionCode = 2
+        versionName = "2.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,6 +52,7 @@ dependencies {
 
     implementation(libs.androidx.graphics.shapes)
     implementation(libs.richeditor.compose)
+    implementation(libs.richeditor.compose.coil3)
     implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(libs.androidx.navigation.compose)

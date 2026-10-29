@@ -48,17 +48,8 @@ class CalendarNotificationManager(private val context: Context) {
     fun scheduleEventAlarm(event: CalendarEvent) {
         cancelEventAlarm(event)
 
-        val intent = Intent(context, CalendarAlarmReceiver::class.java).apply {
-            putExtra("EVENT_ID", event.id)
-            putExtra("EVENT_TITLE", event.title)
-            putExtra("EVENT_TIME", "${event.startTime} - ${event.endTime}")
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            event.id.hashCode(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        if (event.isCompleted) return
+
 
         // Formatter fleksibel untuk menangani format "H:m" maupun "HH:mm"
         val formatter = DateTimeFormatterBuilder()
@@ -85,6 +76,8 @@ class CalendarNotificationManager(private val context: Context) {
             triggerLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val nowMillis = System.currentTimeMillis()
+        var isOverdue = false
+
         if (triggerMillis <= nowMillis) {
             val eventTimeMillis =
                 eventLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -92,9 +85,24 @@ class CalendarNotificationManager(private val context: Context) {
                 // Jika waktu pengingat sudah lewat tetapi acara belum mulai, ingatkan sekarang
                 triggerMillis = nowMillis + 1000
             } else {
-                return
+                isOverdue = true
+                triggerMillis = nowMillis + 1000
             }
         }
+
+        val intent = Intent(context, CalendarAlarmReceiver::class.java).apply {
+            putExtra("EVENT_ID", event.id)
+            putExtra("EVENT_TITLE", event.title)
+            putExtra("EVENT_DATE", event.date)
+            putExtra("EVENT_TIME", "${event.startTime} - ${event.endTime}")
+            putExtra("IS_OVERDUE", isOverdue)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            event.id.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val showIntent = Intent(context, MainActivity::class.java)
         val showPendingIntent = PendingIntent.getActivity(

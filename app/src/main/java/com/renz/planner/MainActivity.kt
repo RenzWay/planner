@@ -17,12 +17,15 @@ import com.renz.planner.app.App
 import com.renz.planner.data.calendar.CalendarDatabase
 import com.renz.planner.data.notes.NotesDatabase
 import com.renz.planner.helper.ViewModelFactory
+import com.renz.planner.navigation.Screen
 import com.renz.planner.notification.CalendarNotificationManager
 import com.renz.planner.repository.CalendarRepository
 import com.renz.planner.repository.NotesRepository
 import com.renz.planner.ui.theme.PlannerTheme
 import com.renz.planner.ui.viewmodel.CalendarViewModel
 import com.renz.planner.ui.viewmodel.NotesViewModel
+import java.time.LocalDate
+import java.time.YearMonth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,12 +59,26 @@ class MainActivity : ComponentActivity() {
         val notesViewModel: NotesViewModel by viewModels { factory }
         val calendarViewModel: CalendarViewModel by viewModels { factory }
 
+        val selectedDateStr = intent?.getStringExtra("SELECTED_DATE")
+        if (!selectedDateStr.isNullOrEmpty()) {
+            runCatching {
+                val date = LocalDate.parse(selectedDateStr)
+                calendarViewModel.onDateSelected(date)
+                calendarViewModel.onMonthChanged((YearMonth.from((date))))
+            }
+        }
+
+        val navigateTo = intent?.getStringExtra("NAVIGATE_TO")
+        val startDestination =
+            if (navigateTo == "calendar") Screen.Calendar.route else Screen.Home.route
+
         setContent {
             PlannerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     App(
                         notesViewModel = notesViewModel,
                         calendarViewModel = calendarViewModel,
+                        startDestination = startDestination,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

@@ -16,13 +16,14 @@ import com.renz.planner.ui.viewmodel.NotesViewModel
 fun App(
     notesViewModel: NotesViewModel,
     calendarViewModel: CalendarViewModel,
+    startDestination: String = Screen.Home.route,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = startDestination
     ) {
         // Layar 1: Home
         composable(Screen.Home.route) {
