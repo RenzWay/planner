@@ -76,18 +76,21 @@ class CalendarNotificationManager(private val context: Context) {
             triggerLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
         val nowMillis = System.currentTimeMillis()
+        val now = LocalDateTime.now()
         var isOverdue = false
 
-        if (triggerMillis <= nowMillis) {
-            val eventTimeMillis =
-                eventLocalDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-            if (eventTimeMillis > nowMillis) {
-                // Jika waktu pengingat sudah lewat tetapi acara belum mulai, ingatkan sekarang
-                triggerMillis = nowMillis + 1000
-            } else {
+        if (now.isAfter(eventLocalDateTime)) {
+            val isRecentlyMissed = eventLocalDateTime.isAfter(now.minusHours(24))
+
+            if (isRecentlyMissed) {
                 isOverdue = true
-                triggerMillis = nowMillis + 1000
+                triggerMillis = System.currentTimeMillis() + 1000
+            } else {
+                return
             }
+        } else if (triggerMillis <= System.currentTimeMillis()) {
+            isOverdue = false
+            triggerMillis = System.currentTimeMillis() + 1000
         }
 
         val intent = Intent(context, CalendarAlarmReceiver::class.java).apply {
